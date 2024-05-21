@@ -26,6 +26,9 @@ export class MongoService {
       case "student":
         collection = db.collection(metaData.db.collectionDetails.student);
         break;
+      case "random":
+        collection = db.collection(metaData.db.collectionDetails.random);;
+        break;
       default:
         break;
     }

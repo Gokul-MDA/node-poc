@@ -5,7 +5,8 @@ export const metaData = {
     expire: 86400,
   },
   db: {
-    connectionURL: "mongodb+srv://gokul:admin@cluster0.n6pnmbc.mongodb.net/",
+    // connectionURL: "mongodb+srv://gokul:admin@cluster0.n6pnmbc.mongodb.net/",
+    connectionURL: "mongodb://127.0.0.1:27017",
     databaseName: "demo_proj",
     collectionDetails: {
       // admin: "admin_details",
@@ -13,6 +14,7 @@ export const metaData = {
       course: "course",
       staff: "staf",
       student: "student",
+      random: "random",
     },
   },
 };
