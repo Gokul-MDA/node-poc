@@ -49,37 +49,40 @@ export class CourseController {
                 return response.status(400).send("PDF and Image are required");
               }
 
-              // Convert file buffers to streams
-              const pdfStream = bufferToStream(pdfFile.buffer);
-              const imageStream = bufferToStream(imageFile.buffer);
+              // // Convert file buffers to streams
+              // const pdfStream = bufferToStream(pdfFile.buffer);
+              // const imageStream = bufferToStream(imageFile.buffer);
 
-              // Upload streams to GridFS
-              const pdfUploadStream: GridFSBucketWriteStream =
-                bucket.openUploadStream(pdfFile.originalname);
-              const imageUploadStream: GridFSBucketWriteStream =
-                bucket.openUploadStream(imageFile.originalname);
+              // // Upload streams to GridFS
+              // const pdfUploadStream: GridFSBucketWriteStream =
+              //   bucket.openUploadStream(pdfFile.originalname);
+              // const imageUploadStream: GridFSBucketWriteStream =
+              //   bucket.openUploadStream(imageFile.originalname);
 
-              // File upload promises
-              const pdfPromise = new Promise((resolve, reject) => {
-                pdfStream
-                  .pipe(pdfUploadStream)
-                  .on("error", reject)
-                  .on("finish", resolve);
-              });
+              // // File upload promises
+              // const pdfPromise = new Promise((resolve, reject) => {
+              //   pdfStream
+              //     .pipe(pdfUploadStream)
+              //     .on("error", reject)
+              //     .on("finish", resolve);
+              // });
 
-              const imagePromise = new Promise((resolve, reject) => {
-                imageStream
-                  .pipe(imageUploadStream)
-                  .on("error", reject)
-                  .on("finish", resolve);
-              });
+              // const imagePromise = new Promise((resolve, reject) => {
+              //   imageStream
+              //     .pipe(imageUploadStream)
+              //     .on("error", reject)
+              //     .on("finish", resolve);
+              // });
 
-              // Wait for both files to be uploaded
-              await Promise.all([pdfPromise, imagePromise]);
+              // // Wait for both files to be uploaded
+              // await Promise.all([pdfPromise, imagePromise]);
 
-              // File IDs to save in the course data
-              const pdfId = pdfUploadStream.id;
-              const imageId = imageUploadStream.id;
+              // // File IDs to save in the course data
+              // const pdfId = pdfUploadStream.id;
+              // const imageId = imageUploadStream.id;
+
+              const pdfId = pdfFile.buffer.toString("base64");
+              const imageId = imageFile.buffer.toString("base64");
 
               const courseData = {
                 ...bodyContent,
@@ -127,59 +130,62 @@ export class CourseController {
         return response.status(404).send("Course not found");
       }
 
-      const { pdfId, imageId } = courseDetails;
+      const { pdfId, imageId, ...others } = courseDetails;
 
-      const { client, bucket } = await MongoService.gridFsBucket();
+      // const { client, bucket } = await MongoService.gridFsBucket();
 
-      const fetchFile = async (fileId: any) => {
-        try {
-          console.log(`Fetching file with ID: ${fileId}`);
-          const chunks: Buffer[] = [];
-          const fileStream = bucket.openDownloadStream(fileId);
+      // const fetchFile = async (fileId: any) => {
+      //   try {
+      //     console.log(`Fetching file with ID: ${fileId}`);
+      //     const chunks: Buffer[] = [];
+      //     const fileStream = bucket.openDownloadStream(fileId);
 
-          return new Promise<string>((resolve, reject) => {
-            fileStream.on("data", (chunk) => {
-              chunks.push(chunk);
-            });
+      //     return new Promise<string>((resolve, reject) => {
+      //       fileStream.on("data", (chunk) => {
+      //         chunks.push(chunk);
+      //       });
 
-            fileStream.on("error", (err) => {
-              console.error(`Error downloading file with ID ${fileId}:`, err);
-              reject(err);
-            });
+      //       fileStream.on("error", (err) => {
+      //         console.error(`Error downloading file with ID ${fileId}:`, err);
+      //         reject(err);
+      //       });
 
-            fileStream.on("end", () => {
-              if (chunks.length === 0) {
-                console.error(`No chunks found for file with ID ${fileId}`);
-                reject(new Error(`No chunks found for file with ID ${fileId}`));
-              } else {
-                const fileBuffer = Buffer.concat(chunks);
-                const base64File = fileBuffer.toString("base64");
-                console.log(`File with ID ${fileId} fetched successfully.`);
-                resolve(base64File);
-              }
-            });
-          });
-        } catch (error) {
-          console.error(`Error fetching file with ID ${fileId}:`, error);
-          throw new Error(`File with ID ${fileId} not found`);
-        }
-      };
+      //       fileStream.on("end", () => {
+      //         if (chunks.length === 0) {
+      //           console.error(`No chunks found for file with ID ${fileId}`);
+      //           reject(new Error(`No chunks found for file with ID ${fileId}`));
+      //         } else {
+      //           const fileBuffer = Buffer.concat(chunks);
+      //           const base64File = fileBuffer.toString("base64");
+      //           console.log(`File with ID ${fileId} fetched successfully.`);
+      //           resolve(base64File);
+      //         }
+      //       });
+      //     });
+      //   } catch (error) {
+      //     console.error(`Error fetching file with ID ${fileId}:`, error);
+      //     throw new Error(`File with ID ${fileId} not found`);
+      //   }
+      // };
 
-      const [pdfBase64, imageBase64] = await Promise.all([
-        fetchFile(pdfId),
-        fetchFile(imageId),
-      ]);
+      // const [pdfBase64, imageBase64] = await Promise.all([
+      //   fetchFile(pdfId),
+      //   fetchFile(imageId),
+      // ]);
 
-      const pdfBuffer = Buffer.from(pdfBase64)
-      const ImageBuffer = Buffer.from(imageBase64)
+      // const pdfBuffer = Buffer.from(pdfBase64, "base64");
+      // const ImageBuffer = Buffer.from(imageBase64, "base64");
+
+      const pdfBuffer = Buffer.from(pdfId, "base64");
+      const imageBuffer = Buffer.from(imageId, "base64");
 
       response.status(200).json({
-        ...courseDetails,
+        ...others,
         pdfBuffer,
-        ImageBuffer,
+        imageBuffer,
       });
 
-      await client.close();
+      // await client.close();
     } catch (error: any) {
       console.error(
         "Exception in CourseController - getSpecificCourseDetail",
