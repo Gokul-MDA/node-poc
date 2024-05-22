@@ -170,10 +170,13 @@ export class CourseController {
         fetchFile(imageId),
       ]);
 
+      const pdfBuffer = Buffer.from(pdfBase64)
+      const ImageBuffer = Buffer.from(imageBase64)
+
       response.status(200).json({
         ...courseDetails,
-        pdfBase64,
-        imageBase64,
+        pdfBuffer,
+        ImageBuffer,
       });
 
       await client.close();
