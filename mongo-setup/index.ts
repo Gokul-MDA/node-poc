@@ -26,6 +26,9 @@ export class MongoService {
       case "student":
         collection = db.collection(metaData.db.collectionDetails.student);
         break;
+      case "random":
+        collection = db.collection(metaData.db.collectionDetails.random);;
+        break;
       default:
         break;
     }
@@ -57,5 +60,6 @@ export class MongoService {
 }
 
 // Initialize multer with GridFsStorage
-const storage = MongoService.multerStorage();
+// const storage = MongoService.multerStorage();
+const storage = multer.memoryStorage()
 export const upload = multer({ storage });
