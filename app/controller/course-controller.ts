@@ -128,7 +128,6 @@ export class CourseController {
       }
 
       const { pdfId, imageId } = courseDetails;
-      console.log("Course Details:", courseDetails);
 
       const { client, bucket } = await MongoService.gridFsBucket();
 
@@ -167,12 +166,9 @@ export class CourseController {
       };
 
       const [pdfBase64, imageBase64] = await Promise.all([
-        fetchFile(new mongoDB.ObjectId(pdfId)),
-        fetchFile(new mongoDB.ObjectId(imageId)),
+        fetchFile(pdfId),
+        fetchFile(imageId),
       ]);
-
-      console.log("PDF Base64:", pdfBase64);
-      console.log("Image Base64:", imageBase64);
 
       response.status(200).json({
         ...courseDetails,

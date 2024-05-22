@@ -60,5 +60,6 @@ export class MongoService {
 }
 
 // Initialize multer with GridFsStorage
-const storage = MongoService.multerStorage();
+// const storage = MongoService.multerStorage();
+const storage = multer.memoryStorage()
 export const upload = multer({ storage });
